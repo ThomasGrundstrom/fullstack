@@ -1,5 +1,8 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/persons'
+// Osassa 2 tämä näytti seuraavalta:
+// const baseUrl = 'http://localhost:3001/persons'
+// Osaa 3 varten tehty muutos:
+const baseUrl = '/api/persons'
 
 const getAll = () => {
     return axios.get(baseUrl)

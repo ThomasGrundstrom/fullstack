@@ -104,8 +104,17 @@ const App = () => {
           setMessage(null)
         }, 5000)
       })
+      // Seuraavat lisättiin osassa 3:
+      .catch(error => {
+        setMessageType('error')
+        setMessage(error.response.data['error'])
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+      })
     }
   }
+  
   const removePerson = (id) => {
     const person = persons.find(person => person.id === id)
     if (window.confirm(`Delete ${person.name}?`)) {
