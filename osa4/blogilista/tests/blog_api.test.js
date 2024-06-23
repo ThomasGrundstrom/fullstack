@@ -5,6 +5,8 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -13,6 +15,17 @@ beforeEach(async () => {
   for (let blog of helper.initialBlogs) {
     let blogObject = new Blog(blog)
     await blogObject.save()
+  }
+
+  await User.deleteMany({})
+  for (let user of helper.initialUsers) {
+    let hashedPassword = await bcrypt.hash(user.password, 10)
+    let userObject = new User({
+      username: user.username,
+      name: user.name,
+      passwordHash: hashedPassword
+    })
+    await userObject.save()
   }
 })
 
@@ -137,6 +150,90 @@ test('blog can be edited', async () => {
   
   const blogsAtEnd = await helper.blogsInDb()
   assert.strictEqual(blogsAtEnd[0].likes, 77)
+})
+
+describe('user tests', () => {
+  test('there is one user', async () => {
+    const response = await helper.usersInDb()
+
+    assert.strictEqual(response.length, 1)
+  })
+
+  test('a valid user can be added', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
+      password: 'salainen'
+    }
+    
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
+    const usersAtEnd = await helper.usersInDb()
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+  })
+
+  test('get call works for users', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('cannot create account with too short username or password', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const tooShortUsername = {
+      username: 'ml',
+      name: 'Matti Luukkainen',
+      password: 'salainen'
+    }
+    let response = await api
+      .post('/api/users')
+      .send(tooShortUsername)
+      .expect(400)
+    
+    assert.strictEqual(response.body.error, 'username is too short')
+
+    const tooShortPassword = {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
+      password: 'sa'
+    }
+    response = await api
+      .post('/api/users')
+      .send(tooShortPassword)
+      .expect(400)
+    
+    assert.strictEqual(response.body.error, 'password is too short')
+
+    const usersAtEnd = await helper.usersInDb()
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+  })
+
+  test('cannot create accounts with duplicate usernames', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const duplicateUser = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'sekret'
+    }
+    const response = await api
+      .post('/api/users')
+      .send(duplicateUser)
+      .expect(400)
+
+    assert.strictEqual(response.body.error, 'username already in use')
+
+    const usersAtEnd = await helper.usersInDb()
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+  })
 })
 
 after(async () => {
