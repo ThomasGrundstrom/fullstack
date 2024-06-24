@@ -4,6 +4,8 @@ require('express-async-errors')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+const User = require('./models/user')
 
 mongoose.connect(config.MONGODB_URI)
 
@@ -22,8 +24,19 @@ const tokenExtractor = (request, response, next) => {
 }
 app.use(tokenExtractor)
 
+const userExtractor = async (request, response, next) => {
+  if (request.method !== 'GET') {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'invalid token' })
+    }
+    request.user = await User.findById(decodedToken.id)
+  }
+  next()
+}
+
 const blogsRouter = require('./controllers/blogs')
-app.use('/api/blogs', blogsRouter)
+app.use('/api/blogs', userExtractor, blogsRouter)
 const usersRouter = require('./controllers/users')
 app.use('/api/users', usersRouter)
 const loginRouter = require('./controllers/login')
