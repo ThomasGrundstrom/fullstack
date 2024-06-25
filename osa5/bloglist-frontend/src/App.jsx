@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import React from 'react'
+import BlogCreationForm from './components/BlogCreationForm'
+import Togglable from './components/togglable'
 
 const Notification = ({ message }) => {
   if (message === null) {
@@ -16,41 +18,6 @@ const Notification = ({ message }) => {
   )
 }
 
-const BlogCreationForm = ({ title, author, url, setTitle, setAuthor, setUrl, handleCreation }) => {
-  return (
-    <div className='blogCreationForm'>
-      <h2>create new</h2>
-      <form onSubmit={handleCreation}>
-        title:
-          <input 
-          type='text'
-          value={title}
-          name='Title'
-          onChange={({ target }) => setTitle(target.value)}
-        />
-        <br />
-        author:
-          <input
-          type='text'
-          value={author}
-          name='Author'
-          onChange={({ target }) => setAuthor(target.value)}
-        />
-        <br />
-        url:
-          <input
-          type='text'
-          value={url}
-          name='Url'
-          onChange={({ target }) => setUrl(target.value)}
-        />
-        <br />
-        <button type='submit'>create</button>
-      </form>
-    </div>
-  )
-}
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
@@ -60,6 +27,7 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const creationFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -101,29 +69,10 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
   }
 
-  const handleCreation = async (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: title,
-      author: author,
-      url: url
-    }
-    const userString = await window.localStorage.getItem('loggedBlogAppUser')
-    const user = JSON.parse(userString)
+  const addBlog = async (blogObject) => {
     const token = user.token
-    try {
-      const newBlog = await blogService.create(blogObject, token)
-      setBlogs(blogs.concat(newBlog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setErrorMessage(`A new blog ${blogObject.title} by ${blogObject.author} added`)
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    } catch (error) {
-      console.error('Error:', error.response.data)
-    }
+    const newBlog = await blogService.create(blogObject, token)
+    setBlogs(blogs.concat(newBlog))
   }
 
   const loginForm = () => (
@@ -159,7 +108,9 @@ const App = () => {
       {!user && loginForm()}
       {user && <div>
         <p>{user.name} logged in <button type='submit' onClick={handleLogout}>logout</button> </p>
-        <BlogCreationForm title={title} author={author} url={url} setTitle={setTitle} setAuthor={setAuthor} setUrl={setUrl} handleCreation={handleCreation} />
+        <Togglable buttonLabel='create new blog' ref={creationFormRef}>
+          <BlogCreationForm createBlog={addBlog} />
+        </Togglable>
         <h2>blogs</h2>
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
