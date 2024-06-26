@@ -46,6 +46,7 @@ blogsRouter.delete('/:id', async (request, response) => {
 
   if (blog.user.toString() === user._id.toString()) {
     await Blog.findByIdAndDelete(request.params.id)
+    user.blogs = user.blogs.filter(id => id.toString() !== request.params.id)
     response.status(204).end()
   } else {
     return response.status(403).json({ error: 'forbidden' })

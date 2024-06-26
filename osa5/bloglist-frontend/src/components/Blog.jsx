@@ -1,7 +1,7 @@
 import { useState } from "react"
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, updateBlog, token }) => {
+const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
@@ -21,6 +21,8 @@ const Blog = ({ blog, updateBlog, token }) => {
     updateBlog(returnedBlog)
   }
 
+  const removeButton = { display: username === blog.user.username ? '' : 'none'}
+
   return (
     <div>
       <div style={hideWhenVisible}>
@@ -30,7 +32,8 @@ const Blog = ({ blog, updateBlog, token }) => {
         {blog.title} {blog.author} <button onClick={toggleVisibility}>hide</button> <br />
         {blog.url} <br />
         likes: {blog.likes} <button onClick={handleLike}>like</button> <br />
-        {blog.user.name}
+        {blog.user.name} <br />
+        <button style={removeButton} onClick={() => blogRemover(blog)}>remove</button>
       </div>
     </div>
   )

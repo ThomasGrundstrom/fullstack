@@ -24,8 +24,18 @@ const edit = (id, updatedObject, token ) => {
   return request.then(response => response.data)
 }
 
+const remove = (id, token) => {
+  const request = axios.delete(`${baseUrl}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return request.then(response => response.data)
+}
+
 export default {
   getAll,
   create,
-  edit
+  edit,
+  remove
 }

@@ -67,9 +67,14 @@ const App = () => {
   }
 
   const addBlog = async (blogObject) => {
+    creationFormRef.current.toggleVisibility()
     const token = user.token
     const newBlog = await blogService.create(blogObject, token)
     setBlogs(blogs.concat(newBlog))
+    setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
   }
 
   const updateBlog = (updatedBlog) => {
@@ -77,6 +82,18 @@ const App = () => {
       blog.id === updatedBlog.id
       ? updatedBlog
       : blog))
+  }
+
+  const removeBlog = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      await blogService.remove(blog.id, user.token)
+      const updatedBlogList = await blogService.getAll()
+      setBlogs( updatedBlogList.sort((a, b) => b.likes - a.likes) )
+      setErrorMessage(`removed blog ${blog.title} by ${blog.author}`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
   }
 
   const loginForm = () => (
@@ -117,7 +134,7 @@ const App = () => {
         </Togglable>
         <h2>blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={updateBlog} token={user.token} />
+          <Blog key={blog.id} blog={blog} updateBlog={updateBlog} token={user.token} username={user.username} blogRemover={removeBlog} />
         )}
         </div>}
     </div>
