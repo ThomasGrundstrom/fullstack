@@ -15,7 +15,17 @@ const create = (blogObject, token) => {
   return request.then(response => response.data)
 }
 
+const edit = (id, updatedObject, token ) => {
+  const request = axios.put(`${baseUrl}/${id}`, updatedObject, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return request.then(response => response.data)
+}
+
 export default {
   getAll,
-  create
+  create,
+  edit
 }
