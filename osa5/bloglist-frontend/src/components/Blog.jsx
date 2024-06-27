@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
 
 const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
@@ -21,7 +21,7 @@ const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
     updateBlog(returnedBlog)
   }
 
-  const removeButton = { display: username === blog.user.username ? '' : 'none'}
+  const removeButton = { display: username === blog.user.username ? '' : 'none' }
 
   return (
     <div>

@@ -29,7 +29,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -78,10 +78,10 @@ const App = () => {
   }
 
   const updateBlog = (updatedBlog) => {
-    setBlogs(blogs.map(blog => 
+    setBlogs(blogs.map(blog =>
       blog.id === updatedBlog.id
-      ? updatedBlog
-      : blog))
+        ? updatedBlog
+        : blog))
   }
 
   const removeBlog = async (blog) => {
@@ -102,7 +102,7 @@ const App = () => {
       <form onSubmit={handleLogin}>
         <div>
           username
-            <input
+          <input
             type="text"
             value={username}
             name="Username"
@@ -111,7 +111,7 @@ const App = () => {
         </div>
         <div>
           password
-            <input
+          <input
             type="password"
             value={password}
             name="Password"
@@ -119,8 +119,8 @@ const App = () => {
           />
         </div>
         <button type="submit">login</button>
-      </form>  
-    </div>    
+      </form>
+    </div>
   )
 
   return (
@@ -136,7 +136,7 @@ const App = () => {
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} updateBlog={updateBlog} token={user.token} username={user.username} blogRemover={removeBlog} />
         )}
-        </div>}
+      </div>}
     </div>
   )
 }
