@@ -25,7 +25,7 @@ const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
 
   return (
     <div>
-      <div style={hideWhenVisible}>
+      <div style={hideWhenVisible} id='blog-minimized'>
         {blog.title} {blog.author} <button onClick={toggleVisibility}>view</button>
       </div>
       <div style={showWhenVisible}>
