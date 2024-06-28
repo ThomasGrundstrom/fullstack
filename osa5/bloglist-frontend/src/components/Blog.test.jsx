@@ -1,23 +1,35 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
-test('renders blog', () => {
-
-  const blog = {
-    title: 'Component testing is done with react-testing-library',
-    author: 'Test',
-    url: 'https://test.com',
-    user: {
-      username: 'testuser'
-    }
+const blog = {
+  title: 'Component testing is done with react-testing-library',
+  author: 'Test',
+  url: 'https://test.com',
+  likes: 0,
+  user: {
+    username: 'testuser',
+    name: 'Test User'
   }
+}
 
-  const updateBlog = () => {}
-  const blogRemover = () => {}
+test('renders blog', () => {
+  render(<Blog blog={blog} />)
 
-  const { container } = render(<Blog blog={blog} updateBlog={updateBlog} token='testtoken' username='testuser' blogRemover={blogRemover} />)
+  const element = screen.getByText('Component testing is done with react-testing-library Test')
 
-  const text = container.querySelector('#blog-minimized')
+  expect(element).toBeDefined()
+})
 
-  expect(text).toHaveTextContent('Component testing is done with react-testing-library')
+test('url, likes and user are shown after view button click', async () => {
+  const mockHandler = vi.fn()
+  render(<Blog blog={blog} />)
+  const user = userEvent.setup()
+  const button = screen.getByText('view')
+  await user.click(button)
+  const hideButton = screen.getByText('hide')
+  const blogInfo = hideButton.closest('div')
+  expect(blogInfo).toHaveTextContent('https://test.com')
+  expect(blogInfo).toHaveTextContent('likes: 0')
+  expect(blogInfo).toHaveTextContent('Test User')
 })
