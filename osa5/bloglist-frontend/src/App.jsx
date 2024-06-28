@@ -77,7 +77,8 @@ const App = () => {
     }, 5000)
   }
 
-  const updateBlog = (updatedBlog) => {
+  const updateBlog = async (updatedBlog, b) => {
+    await blogService.edit(b.id, updatedBlog, user.token)
     setBlogs(blogs.map(blog =>
       blog.id === updatedBlog.id
         ? updatedBlog
@@ -134,7 +135,7 @@ const App = () => {
         </Togglable>
         <h2>blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={updateBlog} token={user.token} username={user.username} blogRemover={removeBlog} />
+          <Blog key={blog.id} blog={blog} updateBlog={updateBlog} username={user.username} blogRemover={removeBlog} />
         )}
       </div>}
     </div>

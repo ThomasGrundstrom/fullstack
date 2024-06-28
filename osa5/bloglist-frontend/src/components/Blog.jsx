@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 
-const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
+const Blog = ({ blog, updateBlog, username, blogRemover }) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
@@ -16,9 +15,7 @@ const Blog = ({ blog, updateBlog, token, username, blogRemover }) => {
       ...blog,
       likes: blog.likes + 1
     }
-
-    const returnedBlog = await blogService.edit(blog.id, updatedBlog, token)
-    updateBlog(returnedBlog)
+    updateBlog(updatedBlog, blog)
   }
 
   const removeButton = { display: username === blog.user.username ? '' : 'none' }
