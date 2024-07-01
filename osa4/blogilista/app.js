@@ -42,6 +42,12 @@ app.use('/api/users', usersRouter)
 const loginRouter = require('./controllers/login')
 app.use('/api/login', loginRouter)
 
+// Lisätty osassa 5
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
   if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
