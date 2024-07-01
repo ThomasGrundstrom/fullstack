@@ -42,4 +42,64 @@ describe('Blog list', () => {
       await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible()
     })
   })
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByTestId('username').fill('mluukkai')
+      await page.getByTestId('password').fill('salainen')
+
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await expect(page.getByRole('button', { name: 'view' })).not.toBeVisible()
+
+      await page.getByRole('button', { name: 'create new blog' }).click()
+
+      await page.getByPlaceholder('write title here').fill('Test blog')
+      await page.getByPlaceholder('write author here').fill('Test Author')
+      await page.getByPlaceholder('write url here').fill('https://testurl.com')
+
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await expect(page.getByText('a new blog Test blog by Test Author added')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'view' })).toBeVisible()
+    })
+
+    test('a blog can be liked', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+
+      await page.getByPlaceholder('write title here').fill('Test blog')
+      await page.getByPlaceholder('write author here').fill('Test Author')
+      await page.getByPlaceholder('write url here').fill('https://testurl.com')
+
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'view' }).click()
+      await expect(page.getByText('likes: 0')).toBeVisible()
+      await page.getByRole('button', { name: 'like' }).click()
+      await expect(page.getByText('likes: 1')).toBeVisible()
+    })
+
+    test('a blog can be removed by the correct account', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+
+      await page.getByPlaceholder('write title here').fill('Test blog')
+      await page.getByPlaceholder('write author here').fill('Test Author')
+      await page.getByPlaceholder('write url here').fill('https://testurl.com')
+
+      await page.getByRole('button', { name: 'create' }).click()
+      await page.getByRole('button', { name: 'view' }).click()
+
+      page.on('dialog', async dialog => {
+        if (dialog.type() === 'confirm') {
+          await dialog.accept()
+        }
+      })
+
+      await page.getByRole('button', { name: 'remove' }).click()
+
+      await expect(page.getByText('removed blog Test blog by Test Author')).toBeVisible()
+    })
+  })
 })
