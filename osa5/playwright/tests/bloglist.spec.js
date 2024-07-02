@@ -101,5 +101,37 @@ describe('Blog list', () => {
 
       await expect(page.getByText('removed blog Test blog by Test Author')).toBeVisible()
     })
+
+    test('the remove button is visible only to the account that created the blog', async ({ page, request }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+
+      await page.getByPlaceholder('write title here').fill('Test blog')
+      await page.getByPlaceholder('write author here').fill('Test Author')
+      await page.getByPlaceholder('write url here').fill('https://testurl.com')
+
+      await page.getByRole('button', { name: 'create' }).click()
+      await page.getByRole('button', { name: 'view' }).click()
+
+      await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+
+      await page.getByRole('button', { name: 'logout' }).click()
+
+      await request.post('http://localhost:3003/api/users', {
+        data: {
+          name: 'Superuser',
+          username: 'root',
+          password: 'sekret'
+        }
+      })
+
+      await page.getByTestId('username').fill('root')
+      await page.getByTestId('password').fill('sekret')
+      await page.getByRole('button', { name: 'login' }).click()
+
+      await page.getByRole('button', { name: 'view' }).click()
+
+      await expect(page.getByText('https://testurl.com')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
+    })
   })
 })
